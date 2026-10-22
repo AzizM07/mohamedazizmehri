@@ -1,0 +1,90 @@
+.sk-section {
+  position: relative;
+  background: #060608;
+  color: #fff;
+  padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 6vw, 72px);
+  overflow: hidden;
+}
+
+.sk-head {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.sk-head h2 {
+  margin: 0;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #c9c9cf;
+}
+
+.sk-head p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #8d8d96;
+}
+
+.sk-stage {
+  position: relative;
+  height: clamp(420px, 62vw, 680px);
+  max-width: 1280px;
+  margin: -24px auto 0;
+}
+
+.sk-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: manipulation;
+}
+
+.sk-info {
+  position: absolute;
+  left: clamp(56px, 9vw, 160px);
+  top: 58%;
+  transform: rotate(-30deg);
+  transform-origin: left bottom;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.sk-info.is-visible {
+  opacity: 1;
+}
+
+.sk-info h3 {
+  margin: 0;
+  font-size: clamp(30px, 4.5vw, 60px);
+  font-weight: 500;
+  line-height: 1;
+  color: #d8d8de;
+  white-space: nowrap;
+}
+
+.sk-info p {
+  margin: 8px 0 0;
+  max-width: 300px;
+  font-size: clamp(12px, 1.4vw, 17px);
+  line-height: 1.35;
+  color: #e6e6ea;
+}
+
+.sk-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-info {
+    transition: none;
+  }
+}

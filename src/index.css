@@ -1,0 +1,41 @@
+:root {
+  --bg: #f6f6f9;
+  --surface: #ffffff;
+  --ink: #16161c;
+  --muted: #4a4a55;
+  --soft: #6a6a76;
+  --line: rgba(20, 20, 30, 0.14);
+  --accent: #2f6bff;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(47, 107, 255, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
