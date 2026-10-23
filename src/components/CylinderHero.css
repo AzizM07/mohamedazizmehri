@@ -29,6 +29,15 @@
   transform-style: preserve-3d;
 }
 
+/* Each ring turns as one block (animated from JavaScript with the Web Animations API) */
+.ch-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
 .ch-card {
   position: absolute;
   left: -210px;
@@ -39,12 +48,10 @@
   overflow: hidden;
   background: var(--card-bg, #333);
   backface-visibility: hidden;
-  will-change: transform;
   visibility: hidden;
 }
 
-.ch-card img,
-.ch-flat-card img {
+.ch-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -61,59 +68,6 @@
   font-size: 34px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.55);
-}
-
-/* Phone: flat strips moved by CSS on the GPU */
-.ch-hero.is-flat .ch-wall {
-  perspective: none;
-}
-
-.ch-flat-row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 190px;
-}
-
-.ch-flat-track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.ch-flat-track.to-left {
-  animation-name: ch-to-left;
-}
-
-.ch-flat-track.to-right {
-  animation-name: ch-to-right;
-}
-
-.ch-flat-card {
-  position: relative;
-  width: 300px;
-  height: 190px;
-  margin-right: 20px;
-  flex-shrink: 0;
-  border-radius: 24px;
-  overflow: hidden;
-  background: var(--card-bg, #333);
-}
-
-.ch-flat-card .ch-card-name {
-  font-size: 26px;
-}
-
-@keyframes ch-to-left {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
-}
-
-@keyframes ch-to-right {
-  from { transform: translate3d(-50%, 0, 0); }
-  to { transform: translate3d(0, 0, 0); }
 }
 
 .ch-floor {
@@ -331,12 +285,6 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ch-flat-track {
-    animation: none;
-  }
 }
 
 /* Responsive */
