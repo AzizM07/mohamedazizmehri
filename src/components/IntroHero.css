@@ -12,8 +12,7 @@
 .ih-glow {
   position: absolute;
   border-radius: 50%;
-  background: var(--accent);
-  filter: blur(110px);
+  background: radial-gradient(circle, rgba(47, 107, 255, 0.9), rgba(47, 107, 255, 0) 70%);
   pointer-events: none;
 }
 
@@ -90,6 +89,25 @@
 
 .ih-nav-cta:hover {
   background: var(--accent);
+}
+
+/* Phone menu (hidden on desktop) */
+.ih-menu-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(30, 40, 90, 0.12);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ih-menu {
+  display: none;
 }
 
 /* Main grid */
@@ -279,11 +297,16 @@
 .ih-chip-3 { right: -8%; top: 58%; animation-delay: -2.4s; }
 .ih-chip-4 { left: -4%; bottom: 10%; animation-delay: -3.4s; }
 
-/* Scroll cue */
-.ih-cue {
+/* Hook at the bottom of the first screen */
+.ih-bottom {
   position: relative;
   z-index: 2;
-  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ih-cue {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -297,6 +320,10 @@
   color: var(--accent);
 }
 
+.ih-cue-phone {
+  display: none;
+}
+
 .ih-cue-arrow {
   animation: ih-bounce 1.6s ease-in-out infinite;
 }
@@ -305,6 +332,7 @@
 .ih-ticker {
   position: relative;
   z-index: 1;
+  width: 100%;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   padding: 16px 0;
@@ -396,20 +424,129 @@
   }
 }
 
-/* Tablet and phone */
+/* Tablet and phone: photo first, text centered, hook at the bottom of the screen */
 @media (max-width: 900px) {
-  .ih-nav ul {
+  .ih-nav {
+    padding: 16px 20px 4px;
+  }
+  .ih-nav ul,
+  .ih-nav-cta {
     display: none;
   }
+  .ih-menu-btn {
+    display: inline-flex;
+  }
+  .ih-menu {
+    position: absolute;
+    top: 64px;
+    right: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 50px rgba(30, 40, 90, 0.18);
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .ih-menu.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .ih-menu a {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .ih-menu a:active {
+    background: var(--accent-soft);
+  }
+  .ih-menu .ih-menu-cta {
+    margin-top: 6px;
+    text-align: center;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+  }
+
   .ih-inner {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 8px 20px 16px;
+    text-align: center;
   }
   .ih-visual {
-    width: min(78%, 400px);
-    margin: 12px 0;
+    order: -1;
+    width: min(62vw, 42svh, 320px);
+    margin-top: 6px;
+  }
+  .ih-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .ih-status {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+  .ih-title {
+    margin-top: 12px;
+    font-size: clamp(36px, 10.5vw, 56px);
+  }
+  .ih-role {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+  .ih-actions {
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .ih-btn {
+    gap: 8px;
+    padding: 12px 18px;
+    font-size: 14px;
   }
   .ih-chip {
-    padding: 8px 14px;
-    font-size: 13px;
+    gap: 6px;
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+  .ih-chip svg {
+    width: 14px;
+    height: 14px;
+  }
+  .ih-chip-1 { left: -14%; top: 12%; }
+  .ih-chip-2 { right: -16%; top: 26%; }
+  .ih-chip-3 { right: -12%; top: auto; bottom: 10%; }
+  .ih-chip-4 { left: -12%; bottom: 18%; }
+
+  /* The hook sticks to the bottom of the first screen */
+  .ih-bottom {
+    margin-top: auto;
+  }
+  .ih-cue {
+    margin-bottom: 12px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .ih-cue-desktop {
+    display: none;
+  }
+  .ih-cue-phone {
+    display: inline;
+  }
+  .ih-ticker {
+    padding: 12px 0;
   }
 }
