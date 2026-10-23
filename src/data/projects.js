@@ -3,7 +3,7 @@
 // image: "/projects/groshop.jpg". Without an image, the card shows its
 // color with the project name.
 export const projects = [
-  { title: "GROSHOP.tn", color: "#2f6bff", image: null },
+  { title: "GROSHOP.tn", color: "#2f6bff",image: "/projects/groshop.webp" },
   { title: "AirScent", color: "#7c8cff", image: null },
   { title: "Fingerbot", color: "#3a3f55", image: null },
   { title: "Score E", color: "#5aa9ff", image: null },
