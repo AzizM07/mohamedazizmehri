@@ -11,7 +11,7 @@ const CARDS_PER_RING = 13;
 const STEP = 360 / CARDS_PER_RING;
 const MAX_ANGLE = 95; // cards beyond this angle are hidden
 
-// Desktop 3D rows. dir 1 = moves left, dir -1 = moves right. speed in degrees per second.
+// dir 1 = moves left, dir -1 = moves right. speed in degrees per second.
 const ROWS = [
   { y: -426, dir: 1, speed: 3.2 },
   { y: -142, dir: -1, speed: 2.6 },
@@ -19,17 +19,8 @@ const ROWS = [
   { y: 426, dir: -1, speed: 3.0 },
 ];
 
-// Phone rows: flat strips animated by CSS only (much lighter on Android).
-const FLAT_ROWS = [
-  { top: -90, dir: 1, duration: 70 },
-  { top: 120, dir: -1, duration: 85 },
-  { top: 330, dir: 1, duration: 75 },
-  { top: 540, dir: -1, duration: 90 },
-];
-
 const EMAIL = "mohamed.aziz.mehri.pro@gmail.com";
 const SKILLS = ["React", "Django", "Flutter", "ESP32"];
-const PHONE_QUERY = "(max-width: 768px)";
 
 function buildRing(rowIndex) {
   return Array.from(
@@ -38,33 +29,22 @@ function buildRing(rowIndex) {
   );
 }
 
-function rotate(list, n) {
-  const k = n % list.length;
-  return [...list.slice(k), ...list.slice(0, k)];
-}
-
-function CardContent({ project }) {
-  return project.image ? (
-    <img src={project.image} alt="" loading="lazy" decoding="async" draggable="false" />
-  ) : (
-    <span className="ch-card-name">{project.title}</span>
-  );
-}
+const normalize = (a) => ((a % 360) + 540) % 360 - 180;
 
 export default function CylinderHero() {
   const heroRef = useRef(null);
   const wallRef = useRef(null);
+  const ringRefs = useRef([]);
   const cardRefs = useRef(ROWS.map(() => []));
   const [message, setMessage] = useState("");
-  const [flat] = useState(() => window.matchMedia(PHONE_QUERY).matches);
 
   const rings = useMemo(() => ROWS.map((_, r) => buildRing(r)), []);
-  const flatRows = useMemo(() => FLAT_ROWS.map((_, r) => rotate(projects, r * 3)), []);
 
   useEffect(() => {
     const hero = heroRef.current;
     const wall = wallRef.current;
 
+    // Scale the 1280 x 720 design to the screen
     const fit = () => {
       const w = hero.parentElement.clientWidth;
       const h = window.innerHeight;
@@ -75,65 +55,70 @@ export default function CylinderHero() {
     fit();
     window.addEventListener("resize", fit);
 
-    // Phone: CSS animations do everything, no JavaScript loop.
-    if (flat) {
-      return () => window.removeEventListener("resize", fit);
-    }
+    // Each ring turns as one block, animated by the browser on the GPU.
+    // Cards never move individually, so the phone has almost nothing to compute.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const starts = ROWS.map((_, r) => (r * STEP) / 2);
 
-    // Desktop: 3D loop, paused when the section is off screen.
-    const offsets = ROWS.map((_, r) => (r * STEP) / 2);
+    const animations = ROWS.map((row, r) => {
+      const ring = ringRefs.current[r];
+      const start = starts[r];
+      const end = start + row.dir * 360;
+      if (reduceMotion) {
+        ring.style.transform = `rotateY(${start}deg)`;
+        return null;
+      }
+      return ring.animate(
+        [{ transform: `rotateY(${start}deg)` }, { transform: `rotateY(${end}deg)` }],
+        { duration: (360 / row.speed) * 1000, iterations: Infinity, easing: "linear" }
+      );
+    });
+
+    // Hide the cards that pass behind the viewer (checked a few times per second only)
     const shown = ROWS.map(() => []);
-
-    const render = () => {
+    const updateVisibility = () => {
       ROWS.forEach((row, r) => {
+        const anim = animations[r];
+        const duration = (360 / row.speed) * 1000;
+        const t = anim ? Number(anim.currentTime) % duration : 0;
+        const offset = starts[r] + row.dir * 360 * (t / duration);
         cardRefs.current[r].forEach((el, i) => {
           if (!el) return;
-          const angle = (((i * STEP + offsets[r]) % 360) + 540) % 360 - 180;
-          const visible = Math.abs(angle) <= MAX_ANGLE;
+          const visible = Math.abs(normalize(i * STEP + offset)) <= MAX_ANGLE;
           if (visible !== shown[r][i]) {
             el.style.visibility = visible ? "visible" : "hidden";
             shown[r][i] = visible;
           }
-          if (visible) {
-            el.style.transform = `translateY(${row.y}px) rotateY(${angle}deg) translateZ(-${RADIUS}px)`;
-          }
         });
       });
     };
+    updateVisibility();
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let raf = 0;
-    let last = 0;
-
-    const tick = (now) => {
-      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
-      last = now;
-      ROWS.forEach((row, r) => {
-        offsets[r] += row.speed * row.dir * dt;
-      });
-      render();
-      raf = requestAnimationFrame(tick);
+    let timer = 0;
+    const play = () => {
+      animations.forEach((a) => a && a.play());
+      if (!timer && !reduceMotion) timer = setInterval(updateVisibility, 120);
+    };
+    const pause = () => {
+      animations.forEach((a) => a && a.pause());
+      clearInterval(timer);
+      timer = 0;
     };
 
-    render();
-
+    // Pause everything when the section is off screen
     const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !raf && !reduceMotion) {
-        last = 0;
-        raf = requestAnimationFrame(tick);
-      } else if (!entry.isIntersecting && raf) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
+      if (entry.isIntersecting) play();
+      else pause();
     });
     io.observe(hero);
 
     return () => {
-      cancelAnimationFrame(raf);
       io.disconnect();
+      pause();
+      animations.forEach((a) => a && a.cancel());
       window.removeEventListener("resize", fit);
     };
-  }, [flat]);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -144,41 +129,31 @@ export default function CylinderHero() {
   };
 
   return (
-    <section className={`ch-hero ${flat ? "is-flat" : ""}`} id="projects" ref={heroRef}>
+    <section className="ch-hero" id="projects" ref={heroRef}>
       <div className="ch-wall" ref={wallRef} aria-hidden="true">
-        {flat ? (
-          <div className="ch-flat">
-            {FLAT_ROWS.map((row, r) => (
-              <div key={r} className="ch-flat-row" style={{ top: row.top }}>
+        <div className="ch-scene">
+          {rings.map((ring, r) => (
+            <div key={r} className="ch-ring" ref={(el) => (ringRefs.current[r] = el)}>
+              {ring.map((p, i) => (
                 <div
-                  className={`ch-flat-track ${row.dir === 1 ? "to-left" : "to-right"}`}
-                  style={{ animationDuration: `${row.duration}s` }}
-                >
-                  {[...flatRows[r], ...flatRows[r]].map((p, i) => (
-                    <div key={i} className="ch-flat-card" style={{ "--card-bg": p.color }}>
-                      <CardContent project={p} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="ch-scene">
-            {rings.map((ring, r) =>
-              ring.map((p, i) => (
-                <div
-                  key={`${r}-${i}`}
+                  key={i}
                   className="ch-card"
-                  style={{ "--card-bg": p.color }}
+                  style={{
+                    "--card-bg": p.color,
+                    transform: `translateY(${ROWS[r].y}px) rotateY(${i * STEP}deg) translateZ(-${RADIUS}px)`,
+                  }}
                   ref={(el) => (cardRefs.current[r][i] = el)}
                 >
-                  <CardContent project={p} />
+                  {p.image ? (
+                    <img src={p.image} alt="" loading="lazy" decoding="async" draggable="false" />
+                  ) : (
+                    <span className="ch-card-name">{p.title}</span>
+                  )}
                 </div>
-              ))
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          ))}
+        </div>
         <div className="ch-floor" />
       </div>
 
