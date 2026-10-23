@@ -1,8 +1,8 @@
 .ch-hero {
   --s: 1;
   position: relative;
-  height: 100svh;
-  min-height: 560px;
+  /* Height follows the scaled wall, so there is no empty black space below it */
+  height: calc(600px * var(--s));
   overflow: hidden;
   background: #000;
   color: #fff;
@@ -29,6 +29,15 @@
   transform-style: preserve-3d;
 }
 
+/* Each ring turns as one block (animated from JavaScript with the Web Animations API) */
+.ch-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
 .ch-card {
   position: absolute;
   left: -210px;
@@ -39,7 +48,6 @@
   overflow: hidden;
   background: var(--card-bg, #333);
   backface-visibility: hidden;
-  will-change: transform;
   visibility: hidden;
 }
 
@@ -55,6 +63,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 16px;
+  text-align: center;
   font-size: 34px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.55);

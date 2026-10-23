@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowDown, Download, Atom, Server, Cpu, Smartphone, UserRound } from "lucide-react";
+import { ArrowRight, ArrowDown, Download, Atom, Server, Cpu, Smartphone, UserRound, Menu, X } from "lucide-react";
 import "./IntroHero.css";
 
 // Put a photo of you in /public/me.jpg (cropped into a circle) and your CV in /public/cv.pdf
@@ -41,6 +41,7 @@ export default function IntroHero() {
   const [photoOk, setPhotoOk] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordVisible, setWordVisible] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Rotate the highlighted word (skipped when the user prefers less motion)
   useEffect(() => {
@@ -59,7 +60,16 @@ export default function IntroHero() {
     };
   }, []);
 
+  // Close the phone menu with the Escape key
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   const ticker = [...TECH, ...TECH];
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <section className="ih-section" id="intro">
@@ -83,10 +93,32 @@ export default function IntroHero() {
         <a href="#contact" className="ih-nav-cta">
           Let’s talk
         </a>
+
+        {/* Phone menu */}
+        <button
+          type="button"
+          className="ih-menu-btn"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          aria-controls="ih-menu"
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <div id="ih-menu" className={`ih-menu ${menuOpen ? "is-open" : ""}`}>
+          {NAV.map((n) => (
+            <a key={n.href} href={n.href} onClick={closeMenu}>
+              {n.label}
+            </a>
+          ))}
+          <a href="#contact" className="ih-menu-cta" onClick={closeMenu}>
+            Let’s talk
+          </a>
+        </div>
       </header>
 
       <div className="ih-inner">
-        {/* Left column */}
+        {/* Text */}
         <div className="ih-text">
           <p className="ih-status">
             <span className="ih-dot" aria-hidden="true" />
@@ -118,7 +150,7 @@ export default function IntroHero() {
           </div>
         </div>
 
-        {/* Right column */}
+        {/* Photo (shown first on phones) */}
         <div className="ih-visual">
           <div className="ih-orbit" aria-hidden="true" />
           <div className="ih-circle">
@@ -146,20 +178,23 @@ export default function IntroHero() {
         </div>
       </div>
 
-      {/* Teaser of what is below */}
-      <a href="#projects" className="ih-cue">
-        <ArrowDown size={16} className="ih-cue-arrow" aria-hidden="true" />
-        Scroll to see my projects
-      </a>
+      {/* Hook at the bottom of the first screen */}
+      <div className="ih-bottom">
+        <a href="#projects" className="ih-cue">
+          <span className="ih-cue-desktop">Scroll to see my projects</span>
+          <span className="ih-cue-phone">View more</span>
+          <ArrowDown size={16} className="ih-cue-arrow" aria-hidden="true" />
+        </a>
 
-      <div className="ih-ticker" aria-hidden="true">
-        <div className="ih-ticker-track">
-          {ticker.map((t, i) => (
-            <span key={i} className="ih-ticker-item">
-              {t}
-              <span className="ih-ticker-dot" />
-            </span>
-          ))}
+        <div className="ih-ticker" aria-hidden="true">
+          <div className="ih-ticker-track">
+            {ticker.map((t, i) => (
+              <span key={i} className="ih-ticker-item">
+                {t}
+                <span className="ih-ticker-dot" />
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>

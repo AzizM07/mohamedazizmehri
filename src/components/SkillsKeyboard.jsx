@@ -6,6 +6,7 @@ import "./SkillsKeyboard.css";
 const COLS = 6;
 const PITCH = 1.08; // distance between keys
 const START_INDEX = 3; // skill shown before any key is hovered
+const COMPACT_WIDTH = 700; // below this width: phone layout
 
 function roundedRect(w, h, r) {
   const s = new THREE.Shape();
@@ -23,23 +24,49 @@ function roundedRect(w, h, r) {
   return s;
 }
 
-function labelTexture(text) {
-  const c = document.createElement("canvas");
-  c.width = c.height = 256;
-  const ctx = c.getContext("2d");
-  let size = 104;
+function fitText(ctx, text, maxWidth, startSize) {
+  let size = startSize;
   ctx.font = `700 ${size}px "Inter Tight", system-ui, sans-serif`;
-  while (ctx.measureText(text).width > 210 && size > 30) {
+  while (ctx.measureText(text).width > maxWidth && size > 20) {
     size -= 4;
     ctx.font = `700 ${size}px "Inter Tight", system-ui, sans-serif`;
   }
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, 128, 136);
+}
+
+// Top of a keycap: the label, or an icon with a small label under it
+function keyTexture(label, icon) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const ctx = c.getContext("2d");
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
+
+  const drawLabel = (y, size) => {
+    fitText(ctx, label, 210, size);
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, 128, y);
+  };
+
+  drawLabel(136, 104);
+
+  if (icon) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, 256, 256);
+      const box = 140;
+      const scale = Math.min(box / img.width, box / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      ctx.drawImage(img, 128 - w / 2, 98 - h / 2, w, h);
+      drawLabel(208, 36);
+      tex.needsUpdate = true;
+    };
+    img.src = icon;
+  }
+
   return tex;
 }
 
@@ -49,6 +76,8 @@ export default function SkillsKeyboard() {
   const canvasRef = useRef(null);
   const [active, setActive] = useState(START_INDEX);
   const [visibleText, setVisibleText] = useState(true);
+  const [compact, setCompact] = useState(false);
+  const [touch] = useState(() => window.matchMedia("(hover: none)").matches);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -57,8 +86,8 @@ export default function SkillsKeyboard() {
     const rows = Math.ceil(skills.length / COLS);
 
     // Renderer, scene, camera
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -123,7 +152,7 @@ export default function SkillsKeyboard() {
     const hitMeshes = [];
     const disposables = [keyGeo, labelGeo, baseGeo, baseMat];
 
-    skills.forEach(([label, , , color], i) => {
+    skills.forEach(([label, , , color, icon], i) => {
       const r = Math.floor(i / COLS);
       const c = i % COLS;
       const group = new THREE.Group();
@@ -134,7 +163,7 @@ export default function SkillsKeyboard() {
       cap.receiveShadow = true;
       cap.userData.index = i;
 
-      const tex = labelTexture(label);
+      const tex = keyTexture(label, icon);
       const labelMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
       const labelMesh = new THREE.Mesh(labelGeo, labelMat);
       labelMesh.position.y = 0.555;
@@ -154,7 +183,7 @@ export default function SkillsKeyboard() {
     let hovered = -1;
     const timers = new Set();
 
-    // Swap the text on the left with a short fade
+    // Swap the skill text with a short fade
     const showSkill = (i) => {
       if (i === current) return;
       current = i;
@@ -235,15 +264,18 @@ export default function SkillsKeyboard() {
     };
     window.addEventListener("keydown", onKeyDown);
 
-    // Sizing
+    // Sizing: on phones the camera comes closer so the keyboard fills the width
     const fit = () => {
       const w = stage.clientWidth;
       const h = stage.clientHeight;
+      const isCompact = w < COMPACT_WIDTH;
+      setCompact(isCompact);
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
-      const d = 30 / Math.min(1, camera.aspect * 1.25);
+      const d = isCompact ? 24.4 / camera.aspect : 30 / Math.min(1, camera.aspect * 1.25);
       camera.position.set(d * 0.62, d * 0.72, d * 0.62);
-      camera.lookAt(0.35, -0.2, 0.35);
+      if (isCompact) camera.lookAt(0, -0.25, 0);
+      else camera.lookAt(0.35, -0.2, 0.35);
       camera.updateProjectionMatrix();
     };
     fit();
@@ -298,14 +330,16 @@ export default function SkillsKeyboard() {
   const [, name, description] = skills[active];
 
   return (
-    <section className="sk-section" id="skills" ref={sectionRef}>
+    <section className={`sk-section ${compact ? "is-compact" : ""}`} id="skills" ref={sectionRef}>
       <header className="sk-head">
         <h2>SKILLS</h2>
-        <p>(hint: hover a key)</p>
+        <p>{touch ? "(hint: tap a key)" : "(hint: hover a key)"}</p>
       </header>
 
-      <div className="sk-stage" ref={stageRef}>
-        <canvas ref={canvasRef} className="sk-canvas" aria-hidden="true" />
+      <div className="sk-body">
+        <div className="sk-stage" ref={stageRef}>
+          <canvas ref={canvasRef} className="sk-canvas" aria-hidden="true" />
+        </div>
         <div className={`sk-info ${visibleText ? "is-visible" : ""}`} aria-live="polite">
           <h3>{name}</h3>
           <p>{description}</p>

@@ -2,7 +2,7 @@
   position: relative;
   background: #060608;
   color: #fff;
-  padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 6vw, 72px);
+  padding: clamp(40px, 7vw, 96px) 0 clamp(32px, 6vw, 72px);
   overflow: hidden;
 }
 
@@ -26,11 +26,15 @@
   color: #8d8d96;
 }
 
+.sk-body {
+  position: relative;
+  max-width: 1280px;
+  margin: -24px auto 0;
+}
+
 .sk-stage {
   position: relative;
   height: clamp(420px, 62vw, 680px);
-  max-width: 1280px;
-  margin: -24px auto 0;
 }
 
 .sk-canvas {
@@ -42,6 +46,7 @@
   touch-action: manipulation;
 }
 
+/* Desktop: text tilted on the left of the keyboard */
 .sk-info {
   position: absolute;
   left: clamp(56px, 9vw, 160px);
@@ -72,6 +77,33 @@
   font-size: clamp(12px, 1.4vw, 17px);
   line-height: 1.35;
   color: #e6e6ea;
+}
+
+/* Phone: bigger keyboard, text straight and centered under it */
+.sk-section.is-compact .sk-body {
+  margin-top: 8px;
+}
+
+.sk-section.is-compact .sk-stage {
+  height: 92vw;
+}
+
+.sk-section.is-compact .sk-info {
+  position: static;
+  transform: none;
+  text-align: center;
+  padding: 0 24px;
+  min-height: 96px;
+}
+
+.sk-section.is-compact .sk-info h3 {
+  font-size: 34px;
+  white-space: normal;
+}
+
+.sk-section.is-compact .sk-info p {
+  max-width: none;
+  font-size: 15px;
 }
 
 .sk-sr-only {
