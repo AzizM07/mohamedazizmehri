@@ -22,11 +22,55 @@ const ROWS = [
 const EMAIL = "mohamed.aziz.mehri.pro@gmail.com";
 const SKILLS = ["React", "Django", "Flutter", "ESP32"];
 
+// Same shuffle every time the page loads (seeded), so the wall always looks the same
+function seededShuffle(list, seed) {
+  const a = [...list];
+  let s = seed;
+  const rand = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Two entries that use the same picture count as the same card
+const keyOf = (p) => p.image || p.title;
+const UNIQUE = projects.filter((p, i, all) => all.findIndex((q) => keyOf(q) === keyOf(p)) === i);
+const ORDER = seededShuffle(UNIQUE, 7);
+
+// Build one ring (13 cards). Each card gets the picture that is the farthest
+// from its other copies in the circle, so repeats are spread as far apart as possible.
+// Each row also starts on a different picture.
 function buildRing(rowIndex) {
-  return Array.from(
-    { length: CARDS_PER_RING },
-    (_, i) => projects[(i * 3 + rowIndex * 5) % projects.length]
-  );
+  const n = ORDER.length;
+  const start = Math.round((rowIndex * n) / ROWS.length);
+  const pool = Array.from({ length: n }, (_, j) => ORDER[(start + j) % n]);
+  const dist = (a, b) => {
+    const d = Math.abs(a - b) % CARDS_PER_RING;
+    return Math.min(d, CARDS_PER_RING - d);
+  };
+
+  const ring = [];
+  for (let i = 0; i < CARDS_PER_RING; i++) {
+    let best = pool[0];
+    let bestScore = -1;
+    for (const p of pool) {
+      let score = Infinity; // not used yet in this ring: best choice
+      ring.forEach((q, j) => {
+        if (keyOf(q) === keyOf(p)) score = Math.min(score, dist(i, j));
+      });
+      if (score > bestScore) {
+        best = p;
+        bestScore = score;
+      }
+    }
+    ring.push(best);
+  }
+  return ring;
 }
 
 const normalize = (a) => ((a % 360) + 540) % 360 - 180;
