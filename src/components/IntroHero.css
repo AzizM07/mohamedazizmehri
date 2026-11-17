@@ -8,11 +8,15 @@
   color: var(--ink);
 }
 
-/* Soft accent light */
+/* Soft accent light (follows the accent color from site.js) */
 .ih-glow {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(47, 107, 255, 0.9), rgba(47, 107, 255, 0) 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 90%, transparent),
+    transparent 70%
+  );
   pointer-events: none;
 }
 
@@ -216,7 +220,7 @@
 .ih-btn-primary {
   background: var(--accent);
   color: var(--accent-ink);
-  box-shadow: 0 10px 26px rgba(47, 107, 255, 0.3);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .ih-btn-outline {
@@ -237,7 +241,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px dashed rgba(47, 107, 255, 0.35);
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent);
   animation: ih-spin 40s linear infinite;
 }
 
@@ -247,7 +251,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: #e6e7ee;
-  box-shadow: 0 30px 80px rgba(47, 107, 255, 0.14);
+  box-shadow: 0 30px 80px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .ih-circle img {

@@ -5,9 +5,11 @@
   --muted: #4a4a55;
   --soft: #6a6a76;
   --line: rgba(20, 20, 30, 0.14);
+  /* --accent and --highlight are overwritten from src/data/site.js */
   --accent: #2f6bff;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(47, 107, 255, 0.12);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --highlight: #f5c518;
 }
 
 *,

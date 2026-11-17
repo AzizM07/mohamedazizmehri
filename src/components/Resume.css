@@ -69,7 +69,7 @@
   font-weight: 700;
   font-style: italic;
   text-transform: uppercase;
-  color: #f5c518;
+  color: var(--highlight);
 }
 
 .rs-sub {

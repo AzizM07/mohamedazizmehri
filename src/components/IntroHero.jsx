@@ -1,27 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowDown, Download, Atom, Server, Cpu, Smartphone, UserRound, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowDown, Download, UserRound, Menu, X } from "lucide-react";
+import { site } from "../data/site";
 import "./IntroHero.css";
 
-// Put a photo of you in /public/me.jpg (cropped into a circle) and your CV in /public/cv.pdf
+// Put a photo in /public/me.jpg (cropped into a circle) and the CV in /public/cv.pdf
 const PHOTO = "/me.jpg";
 const CV_FILE = "/cv.pdf";
-
-const ROTATING = ["web platforms", "mobile apps", "IoT devices", "AI features"];
-
-const TECH = [
-  "React",
-  "Django REST",
-  "Flutter",
-  "ESP32",
-  "STM32",
-  "Python",
-  "Docker",
-  "Linux",
-  "SQL",
-  "Figma",
-  "Machine learning",
-  "IoT",
-];
 
 const NAV = [
   { label: "Projects", href: "#projects" },
@@ -30,12 +14,8 @@ const NAV = [
   { label: "Contact", href: "#contact" },
 ];
 
-const CHIPS = [
-  { label: "React", icon: Atom, className: "ih-chip-1" },
-  { label: "Django", icon: Server, className: "ih-chip-2" },
-  { label: "ESP32", icon: Cpu, className: "ih-chip-3" },
-  { label: "Flutter", icon: Smartphone, className: "ih-chip-4" },
-];
+// Position classes for the 4 floating badges around the photo
+const CHIP_CLASSES = ["ih-chip-1", "ih-chip-2", "ih-chip-3", "ih-chip-4"];
 
 export default function IntroHero() {
   const [photoOk, setPhotoOk] = useState(true);
@@ -50,7 +30,7 @@ export default function IntroHero() {
     const id = setInterval(() => {
       setWordVisible(false);
       swap = setTimeout(() => {
-        setWordIndex((i) => (i + 1) % ROTATING.length);
+        setWordIndex((i) => (i + 1) % site.rotating.length);
         setWordVisible(true);
       }, 220);
     }, 2400);
@@ -68,7 +48,7 @@ export default function IntroHero() {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const ticker = [...TECH, ...TECH];
+  const ticker = [...site.ticker, ...site.ticker];
   const closeMenu = () => setMenuOpen(false);
 
   return (
@@ -79,7 +59,8 @@ export default function IntroHero() {
       {/* Top navigation */}
       <header className="ih-nav">
         <a href="#intro" className="ih-logo">
-          Aziz<span>.</span>
+          {site.firstName}
+          <span>.</span>
         </a>
         <nav aria-label="Sections">
           <ul>
@@ -122,22 +103,22 @@ export default function IntroHero() {
         <div className="ih-text">
           <p className="ih-status">
             <span className="ih-dot" aria-hidden="true" />
-            Available for internships
+            {site.status}
           </p>
 
           <h1 className="ih-title">
             Hi, I’m
             <br />
-            <span className="ih-name">Aziz Mehri</span>.
+            <span className="ih-name">{site.displayName}</span>.
           </h1>
 
           <p className="ih-role">
-            I build{" "}
+            {site.rolePrefix}{" "}
             <span className={`ih-word ${wordVisible ? "is-visible" : ""}`} aria-live="polite">
-              {ROTATING[wordIndex]}
+              {site.rotating[wordIndex]}
             </span>
             <br />
-            from the Django API to the ESP32 board.
+            {site.roleLine}
           </p>
 
           <div className="ih-actions">
@@ -157,7 +138,7 @@ export default function IntroHero() {
             {photoOk ? (
               <img
                 src={PHOTO}
-                alt="Mohamed Aziz Mehri"
+                alt={site.fullName}
                 onError={() => setPhotoOk(false)}
                 draggable="false"
               />
@@ -169,8 +150,8 @@ export default function IntroHero() {
             )}
           </div>
 
-          {CHIPS.map(({ label, icon: Icon, className }) => (
-            <span key={label} className={`ih-chip ${className}`}>
+          {site.chips.slice(0, 4).map(({ label, icon: Icon }, i) => (
+            <span key={label} className={`ih-chip ${CHIP_CLASSES[i]}`}>
               <Icon size={18} aria-hidden="true" />
               {label}
             </span>

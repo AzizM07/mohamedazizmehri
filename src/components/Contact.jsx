@@ -58,7 +58,7 @@ export default function Contact() {
       </div>
 
       <div className="ct-home">
-        <a href="#home">Home</a>
+        <a href="#intro">Home</a>
       </div>
     </section>
   );

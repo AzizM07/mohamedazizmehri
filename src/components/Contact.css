@@ -29,7 +29,7 @@
 }
 
 .ct-title span {
-  color: #f5c518;
+  color: var(--highlight);
 }
 
 .ct-qr {

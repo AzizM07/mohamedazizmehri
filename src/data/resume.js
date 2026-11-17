@@ -47,9 +47,9 @@ export const activities = [
 export const contact = {
   email: "mohamed.aziz.mehri.pro@gmail.com",
   github: "https://github.com/AzizM07",
-  linkedin: "https://www.linkedin.com/in/mehri-mohamed-aziz-301320330/", // TODO: real LinkedIn URL
+  linkedin: "https://www.linkedin.com/in/mehri-mohamed-aziz-301320330/",
   location: "Tunis, Tunisia",
-  qrTarget: "https://www.linkedin.com/in/mehri-mohamed-aziz-301320330/", // TODO: your site URL once it is online
+  qrTarget: "https://azizmehri.is-a.dev", // the QR code in Contact opens the site
 };
 
 export const services = ["Web apps", "Mobile apps", "IoT systems", "UI/UX design"];

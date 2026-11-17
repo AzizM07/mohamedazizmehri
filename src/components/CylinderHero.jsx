@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Home, Briefcase, Cpu, Mail, ArrowUpRight } from "lucide-react";
 import { projects } from "../data/projects";
+import { contact } from "../data/resume";
+import { site } from "../data/site";
 import "./CylinderHero.css";
 
 // Geometry is designed on a 1280 x 720 canvas, then scaled to the screen.
@@ -18,9 +20,6 @@ const ROWS = [
   { y: 142, dir: 1, speed: 3.6 },
   { y: 426, dir: -1, speed: 3.0 },
 ];
-
-const EMAIL = "mohamed.aziz.mehri.pro@gmail.com";
-const SKILLS = ["React", "Django", "Flutter", "ESP32"];
 
 // Same shuffle every time the page loads (seeded), so the wall always looks the same
 function seededShuffle(list, seed) {
@@ -167,9 +166,9 @@ export default function CylinderHero() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const text = message.trim();
-    const subject = encodeURIComponent("Project from your portfolio");
-    const body = encodeURIComponent(text || "Hi Aziz,");
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent(site.mailSubject);
+    const body = encodeURIComponent(text || `Hi ${site.firstName},`);
+    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -205,13 +204,13 @@ export default function CylinderHero() {
 
       <header className="ch-top">
         <a href="#intro" className="ch-logo" aria-label="Back to top">
-          AM
+          {site.initials}
         </a>
         <nav className="ch-pills" aria-label="Primary">
-          <a href="#work" className="ch-pill is-active">Projects</a>
+          <a href="#projects" className="ch-pill is-active">Projects</a>
           <a href="#contact" className="ch-pill">Contact</a>
         </nav>
-        <span className="ch-tagline">Open to opportunities</span>
+        <span className="ch-tagline">{site.wallBadge}</span>
       </header>
 
       <nav className="ch-side" aria-label="Sections">
@@ -222,8 +221,14 @@ export default function CylinderHero() {
       </nav>
 
       <div className="ch-center">
-        <h1>I build ideas<br />that ship</h1>
-        <p>Mohamed Aziz Mehri, full-stack and IoT developer in Tunis</p>
+        <h1>
+          {site.heroTitle[0]}
+          <br />
+          {site.heroTitle[1]}
+        </h1>
+        <p>
+          {site.fullName}, {site.heroSub}
+        </p>
       </div>
 
       <form className="ch-prompt" onSubmit={handleSubmit}>
@@ -241,8 +246,8 @@ export default function CylinderHero() {
       </form>
 
       <ul className="ch-chips" aria-label="Main skills">
-        {SKILLS.map((s) => (
-          <li key={s}>{s}</li>
+        {site.chips.map((c) => (
+          <li key={c.label}>{c.label}</li>
         ))}
       </ul>
     </section>

@@ -12,7 +12,8 @@ export default function App() {
     <main>
       <IntroHero />
       <CylinderHero />
-      <Suspense fallback={<section id="skills" style={{ minHeight: "100vh", background: "var(--bg)" }} />}>
+      {/* Same dark color as the skills section, so there is no light flash while it loads */}
+      <Suspense fallback={<section id="skills" style={{ minHeight: "100vh", background: "#060608" }} />}>
         <SkillsKeyboard />
       </Suspense>
       <Resume />
